@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using System.Drawing;
+using SixLabors.ImageSharp;
+using System.Net;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.PixelFormats;
+using System.Net.Http;
+using System.IO;
+using SixLabors.ImageSharp.Processing.Transforms;
 
 namespace ks_dynamic_sprite.Controllers
 {
@@ -14,6 +22,8 @@ namespace ks_dynamic_sprite.Controllers
         public Int32 width { get; set; }
 
     }
+
+
 
     [Route("api/[controller]")]
     [ApiController]
@@ -35,17 +45,32 @@ namespace ks_dynamic_sprite.Controllers
 
         // POST api/values
         [HttpPost]
-        public ActionResult<IEnumerable<string>> Post([FromBody] SpriteDetails details)
-        { 
-        
-            return new string[] { "value1", "value2" };
-        }      
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<ActionResult<IEnumerable<string>>> Post([FromBody] SpriteDetails details)
         {
+            // var imgurl = new Comp
+          {
+            HttpClient httpClient = new HttpClient();
+            HttpResponseMessage response = await httpClient.GetAsync(details.imagePaths.First());
+            Stream inputStream = await response.Content.ReadAsStreamAsync();
+
+            using (var image = Image.Load(inputStream))
+            {
+                image.Mutate(z => z.Resize(100, 100));
+            }
+
+
+
+            return new Task(string[] { "value1", "value2" };
+
+            });
         }
+
+
+
+
+
+
+
 
         // DELETE api/values/5
         [HttpDelete("{id}")]

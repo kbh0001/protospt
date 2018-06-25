@@ -13,6 +13,7 @@
     <PackageReference Include="Moq" Version="4.8.3" />
     <PackageReference Include="AWSSDK.Core" Version="3.3.24.2" />
     <PackageReference Include="AWSSDK.S3" Version="3.3.18.5" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0004" />
   </ItemGroup>
 
 </Project>
