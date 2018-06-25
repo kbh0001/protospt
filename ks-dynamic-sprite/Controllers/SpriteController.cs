@@ -6,9 +6,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ks_dynamic_sprite.Controllers
 {
+    public class SpriteDetails
+    {
+
+        public List<String> imagePaths { get; set; }
+        public Int32 height { get; set; }
+        public Int32 width { get; set; }
+
+    }
+
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class SpriteController : ControllerBase
     {
         // GET api/values
         [HttpGet]
@@ -26,9 +35,11 @@ namespace ks_dynamic_sprite.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
+        public ActionResult<IEnumerable<string>> Post([FromBody] SpriteDetails details)
+        { 
+        
+            return new string[] { "value1", "value2" };
+        }      
 
         // PUT api/values/5
         [HttpPut("{id}")]
