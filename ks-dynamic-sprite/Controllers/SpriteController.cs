@@ -31,17 +31,19 @@
 
         // POST api/values
         [HttpPost]
-        public async Task<ActionResult<IEnumerable<string>>> Post([FromBody] SpriteDetails details)
+        public ActionResult<IEnumerable<string>> Post([FromBody] SpriteDetails details)
         {
 
             details.ImagePaths.ForEach(async img =>
             {
 
-                var fetchTask = Task.Run( () => new ImageFetcher().FetchImage(img));
-                var taskResult = await fetchTask;
+                var soureImage =  await new ImageFetcher().FetchImage(img);
+                var resizeTask = new Yearg.ImageResizer().ReziseImage(soureImage, 50, 50);
 
-                System.Diagnostics.Trace.WriteLine("image fetched");
-            });
+                System.Diagnostics.Trace.WriteLine("done");
+
+            }); 
+
 
             return new string[] { "value1", "value2" };
 
