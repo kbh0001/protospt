@@ -10,53 +10,34 @@
     using SixLabors.ImageSharp;
     using Yearg;
 
-    // using SixLabors.ImageSharp;
-    // using SixLabors.ImageSharp.Processing;
-    // using SixLabors.ImageSharp.Processing.Transforms;
-
     [Route("api/[controller]")]
     [ApiController]
     public class SpriteController : ControllerBase
     {
-        // GET api/values
-        [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
-        {
-            return "value";
-        }
-
         // POST api/values
         [HttpPost]
-        public ActionResult<IEnumerable<string>> Post([FromBody] SpriteDetails details)
+        public ActionResult Post([FromBody] SpriteDetails details)
         {
+            //sanity
+            if (!details.ImagePaths.Any() || (details.Height < 1 || details.Width < 1))
+            {
+                return this.BadRequest();
+            }
+
             var tasks = details.ImagePaths.Select(url =>
             {
                 var fetchTask = new ImageFetcher().FetchImage(url);
-                return fetchTask.ContinueWith(image => new Yearg.ImageCenterCroper().CropImage(image.Result, 50, 50));
+                return fetchTask.ContinueWith(image => new Yearg.ImageCenterCroper().CropImage(image.Result, details.Height, details.Width));
             }).ToArray();
 
             Task.WaitAll(tasks);
-            var newImage = new SpriteGenerator().CreateSprite(tasks.Select(z => z.Result).ToList(), 50, 50);
+            var newImage = new ImageConcatenator().CreateSprite(tasks.Select(z => z.Result).ToList(),  details.Height, details.Width);
 
-            using (var fs = new FileStream("file.jpg", FileMode.Create, FileAccess.Write, FileShare.Write))
-            {
-                newImage.SaveAsJpeg(fs);
-            }
+            var fs = new MemoryStream();
+            newImage.SaveAsJpeg(fs);
+            return  File(fs, "image/jpeg");
 
-            return new string[] { "value1", "value2" };
         }
 
-            // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }
