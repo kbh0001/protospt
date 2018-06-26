@@ -16,7 +16,7 @@ namespace Yearg
         {
             var str = new MemoryStream(bytes);
             using (var output = new MemoryStream())
-// using (var fs = new FileStream("file.jpg", FileMode.Create, FileAccess.Write, FileShare.Write))
+
             using (var image = Image.Load(str))
             {
 

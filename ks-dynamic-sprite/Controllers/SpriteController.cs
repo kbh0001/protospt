@@ -8,6 +8,7 @@
     using KsDynamicSprite.Utilities;
     using Microsoft.AspNetCore.Mvc;
     using SixLabors.ImageSharp;
+    using Yearg;
 
     // using SixLabors.ImageSharp;
     // using SixLabors.ImageSharp.Processing;
@@ -35,25 +36,19 @@
         [HttpPost]
         public ActionResult<IEnumerable<string>> Post([FromBody] SpriteDetails details)
         {
-
             var tasks = details.ImagePaths.Select(url =>
             {
                 var fetchTask = new ImageFetcher().FetchImage(url);
-                return fetchTask.ContinueWith(image =>
-                {
-                    {
-                        using (var resizeTask = new Yearg.ImageCenterCroper().CropImage(image.Result, 50, 50))
-                        {
-                            return resizeTask;
-                        }
-
-                    }
-                });
+                return fetchTask.ContinueWith(image => new Yearg.ImageCenterCroper().CropImage(image.Result, 50, 50));
             }).ToArray();
 
             Task.WaitAll(tasks);
-            var results = tasks.Select(z => z.Result).ToArray();
+            var newImage = new SpriteGenerator().CreateSprite(tasks.Select(z => z.Result).ToList(), 50, 50);
 
+            using (var fs = new FileStream("file.jpg", FileMode.Create, FileAccess.Write, FileShare.Write))
+            {
+                newImage.SaveAsJpeg(fs);
+            }
 
             return new string[] { "value1", "value2" };
         }
