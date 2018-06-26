@@ -7,9 +7,11 @@
     using System.Threading.Tasks;
     using KsDynamicSprite.Utilities;
     using Microsoft.AspNetCore.Mvc;
-// using SixLabors.ImageSharp;
-// using SixLabors.ImageSharp.Processing;
-// using SixLabors.ImageSharp.Processing.Transforms;
+    using SixLabors.ImageSharp;
+
+    // using SixLabors.ImageSharp;
+    // using SixLabors.ImageSharp.Processing;
+    // using SixLabors.ImageSharp.Processing.Transforms;
 
     [Route("api/[controller]")]
     [ApiController]
@@ -34,34 +36,29 @@
         public ActionResult<IEnumerable<string>> Post([FromBody] SpriteDetails details)
         {
 
-            details.ImagePaths.ForEach(async img =>
+            var tasks = details.ImagePaths.Select(url =>
             {
+                var fetchTask = new ImageFetcher().FetchImage(url);
+                return fetchTask.ContinueWith(image =>
+                {
+                    {
+                        using (var resizeTask = new Yearg.ImageCenterCroper().CropImage(image.Result, 50, 50))
+                        {
+                            return resizeTask;
+                        }
 
-                var soureImage =  await new ImageFetcher().FetchImage(img);
-                var resizeTask = new Yearg.ImageResizer().ReziseImage(soureImage, 50, 50);
+                    }
+                });
+            }).ToArray();
 
-                System.Diagnostics.Trace.WriteLine("done");
-
-            }); 
+            Task.WaitAll(tasks);
+            var results = tasks.Select(z => z.Result).ToArray();
 
 
             return new string[] { "value1", "value2" };
-
-            /*
-                    HttpClient httpClient = new HttpClient();
-                    HttpResponseMessage response = await httpClient.GetAsync(details.ImagePaths.First());
-                    Stream inputStream = await response.Content.ReadAsStreamAsync();
-
-                    using (var image = Image.Load(inputStream))
-                    {
-                        image.Mutate(z => z.Resize(100, 100));
-                    }
-
-                     
-              */
         }
 
-        // DELETE api/values/5
+            // DELETE api/values/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {

@@ -12,16 +12,18 @@ namespace Yearg
 {
     public class ImageResizer
     {
-        public byte[] ReziseImage(byte[] bytes, int height, int width)
+        public byte[] ResizeImage(byte[] bytes, int height, int width)
         {
             var str = new MemoryStream(bytes);
             using (var output = new MemoryStream())
+// using (var fs = new FileStream("file.jpg", FileMode.Create, FileAccess.Write, FileShare.Write))
             using (var image = Image.Load(str))
             {
-                image.Mutate(ctx => ctx.Resize(image.Width / 2, image.Height / 2));
-                image.SaveAsJpeg(output);
-                //image.SaveAsJpeg("")
-                return output.ReadToEnd();
+
+
+                var newimage = image.Clone(ctx => ctx.Resize(width, height));
+                newimage.SaveAsJpeg(output);
+                return output.ToArray();
 
             }
         }
